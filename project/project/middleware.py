@@ -4,12 +4,18 @@ import requests
 import json
 import time
 
+
+from django.contrib.auth.models import User
+from django.contrib.auth import login
+
 SSO_TOKEN = 'token'
 REFRESH_TOKEN = 'rememberme'
 AUTH_URL = 'http://localhost:3000/user/login'
 REFRESH_URL = 'http://localhost:3000/auth/refresh-token'
 PUBLIC_KEY = 'project/public.pem'
 MAX_TTL_ALLOWED = 60 * 5
+QUERY_PARAM = 'serviceURL'
+USER_MODEL = User
 
 class SSOMiddleware:
     def __init__(self, get_response):
@@ -28,10 +34,9 @@ class SSOMiddleware:
         except:
             rememberme = None
             
-            
 
         if(not token and not rememberme):
-            return redirect(AUTH_URL+f"/?service_url={request.build_absolute_uri()}")
+            return redirect(AUTH_URL+f"/?{QUERY_PARAM}={request.build_absolute_uri()}")
         
         if(token is not None):
             try:
@@ -42,14 +47,14 @@ class SSOMiddleware:
 
                 self.assign_user(request, decoded['user'])
             except:
-                return redirect(AUTH_URL+f"/?service_url={request.build_absolute_uri()}")
+                return redirect(AUTH_URL+f"/?{QUERY_PARAM}={request.build_absolute_uri()}")
         else:
             try:
                 decoded = jwt.decode(rememberme,self.public_key,algorithms='RS256')
                 user = self.refresh(request,{REFRESH_TOKEN:rememberme})
                 self.assign_user(request,user_payload=user)
             except:
-                return redirect(AUTH_URL+f"/?service_url={request.build_absolute_uri()}")
+                return redirect(AUTH_URL+f"/?{QUERY_PARAM}={request.build_absolute_uri()}")
 
         response = self.get_response(request)
 
@@ -59,10 +64,16 @@ class SSOMiddleware:
         return response
 
 
-    # TO implement after db is ready
     def assign_user(self,request,user_payload):
-        print(f"Assigning {user_payload} to request.user")
-
+        if(request.user.is_authenticated):
+            return
+        try:
+            user = USER_MODEL.objects.get(email=user_payload['email'])
+        except:
+            user = USER_MODEL.objects.create_user(username=user_payload['username'], email=user_payload['email'],first_name=user_payload['firstname'],last_name=user_payload['lastname'])
+        login(request, user)
+        
+    
     def refresh(self,request,token):
         r=requests.post(REFRESH_URL,data=token)
         self.cookies = r.headers['Set-Cookie'].replace('Lax,','Lax,\nSet-Cookie:')
