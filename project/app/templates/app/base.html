@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" href="{% static 'app/css/main.css' %}" />
+        <link rel="stylesheet" href="{% static 'app/css/notes.css' %}" />
+        <title>Django SSO Client</title>
+    </head>
+    <body>
+        <nav class="navbar">
+            <div class="nav-section">
+                <a href="#" class="nav-brand">TodoApp</a>
+                <a href="../app/notes.html" class="nav-link">Notes</a>
+            </div>
+            <div class="nav-section">
+                <a href="#" class="nav-link">Login</a>
+            </div>
+        </nav>
+
+        <div class="body-block">
+            {% block body %} {% endblock body %}
+        </div>
+
+        <script src="{% static 'app/js/notes.js' %}"></script>
+    </body>
+</html>

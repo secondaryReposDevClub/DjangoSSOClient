@@ -1,0 +1,125 @@
+.main {
+    display: flex;
+    font-size: 1.5rem;
+    flex-direction: column;
+    margin: auto;
+    position: relative;
+}
+
+button {
+    font-family: var(--heading-font);
+}
+
+#createBtn {
+    width: auto;
+    margin: 2rem auto 1rem;
+    font-size: 1.5rem;
+    border: none;
+    color: white;
+    background: #f7567c;
+    padding: 0.5rem 3rem;
+    border-radius: 10px;
+    outline: none;
+}
+
+.active {
+    height: 100%;
+    transform: scaleY(1) scaleX(1);
+    padding: 1rem;
+}
+
+form {
+    font-family: var(--heading-font);
+    width: 400px;
+    display: flex;
+    transform: scaleY(0) scaleX(0);
+    transform-origin: top;
+    height: 0;
+    border-radius: 10px;
+    background: #2d3047;
+    color: white;
+    flex-direction: column;
+    margin: auto;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+form input {
+    font-family: var(--body-font);
+    margin: 10px 0;
+    height: 2rem;
+    font-size: 1rem;
+    padding: 5px 10px;
+    border: none;
+    outline: none;
+    border-radius: 5px;
+}
+
+form textarea {
+    font-family: var(--body-font);
+    margin: 10px 0;
+    font-size: 1rem;
+    padding: 5px 10px;
+    border: none;
+    outline: none;
+    border-radius: 10px;
+    height: 10rem;
+    resize: none;
+}
+
+form button {
+    width: auto;
+    margin: 1rem auto auto;
+    font-size: 1.5rem;
+    border: none;
+    background: #f7567c;
+    color: white;
+    outline: none;
+    padding: 0.5rem 3rem;
+    border-radius: 10px;
+}
+
+.note-container {
+    padding: 1rem 2rem;
+    column-count: 3;
+    column-gap: 1.5rem;
+}
+
+.note {
+    box-sizing: border-box;
+    display: inline-block;
+    padding: 0 1rem;
+    width: 100%;
+    border-radius: 10px;
+    background: #2d3047;
+    margin: 1rem 0;
+    color: rgb(212, 212, 212);
+}
+
+.note-heading {
+    font-family: var(--heading-font);
+    padding: 0.5rem 0;
+    border-bottom: 1px solid white;
+}
+
+.note-body {
+    font-size: 15px;
+    font-family: var(--body-font);
+    line-height: 1.5rem;
+    color: white;
+    padding: 0.5rem 0 1rem;
+}
+
+@media (max-width: 860px) {
+    .note-container {
+        column-count: 2;
+    }
+}
+
+@media (max-width: 600px) {
+    .note-container {
+        column-count: 1;
+    }
+}
