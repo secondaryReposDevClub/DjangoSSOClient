@@ -18,8 +18,13 @@
             <a href="{% url 'notes' %}" class="nav-link">Notes</a>
         </div>
         <div class="nav-section">
+
+            {% if 'logout/' in request.path  %}
+            <a href="http://localhost:3000/user/login/?serviceURL=http://localhost:8000/" class="nav-link">Login</a>
+            {% else %}
             <p>Welcome, {{user.username}}</p>
             <a href="{% url 'logout' %}" class="nav-link">Logout</a>
+            {% endif %}
         </div>
     </nav>
 

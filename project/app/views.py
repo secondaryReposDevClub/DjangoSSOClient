@@ -23,4 +23,4 @@ def p1(request):
     return HttpResponse("You are in p1 view")
 
 def logout(request):
-    return HttpResponse("Successfully logged out")
+    return render(request, 'app/logout.html')
