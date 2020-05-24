@@ -6,7 +6,7 @@ import time
 
 
 from django.contrib.auth.models import User
-from django.contrib.auth import login
+from django.contrib.auth import login,logout
 
 SSO_TOKEN = 'token'
 REFRESH_TOKEN = 'rememberme'
@@ -15,7 +15,10 @@ REFRESH_URL = 'http://localhost:3000/auth/refresh-token'
 PUBLIC_KEY = 'project/public.pem'
 MAX_TTL_ALLOWED = 60 * 5
 QUERY_PARAM = 'serviceURL'
+LOGOUT_PATH = '/logout/'
 USER_MODEL = User
+
+CLEAR_COOKIE = "clear"
 
 class SSOMiddleware:
     def __init__(self, get_response):
@@ -24,6 +27,9 @@ class SSOMiddleware:
         self.cookies = None
 
     def __call__(self, request):
+        if(request.path == LOGOUT_PATH):
+            return self.logout(request,self.get_response(request))
+
         try:
             token = request.COOKIES[SSO_TOKEN]
         except :
@@ -48,6 +54,7 @@ class SSOMiddleware:
                 self.assign_user(request, decoded['user'])
             except Exception as err:
                 print(err)
+                self.cookies = CLEAR_COOKIE
                 return redirect(AUTH_URL+f"/?{QUERY_PARAM}={request.build_absolute_uri()}")
         else:
             try:
@@ -56,10 +63,14 @@ class SSOMiddleware:
                 self.assign_user(request,user_payload=user)
             except Exception as err:
                 print(err)
+                self.cookies = CLEAR_COOKIE
                 return redirect(AUTH_URL+f"/?{QUERY_PARAM}={request.build_absolute_uri()}")
 
         response = self.get_response(request)
 
+        if(self.cookies == CLEAR_COOKIE):
+            return self.logout(request,response)
+        
         if(self.cookies is not None):
             response._headers['set-cookie'] = ('Set-Cookie',self.cookies)
 
@@ -80,3 +91,9 @@ class SSOMiddleware:
         r=requests.post(REFRESH_URL,data=token)
         self.cookies = r.headers['Set-Cookie'].replace('Lax,','Lax,\nSet-Cookie:')
         return json.loads(r.text)['user']
+
+    def logout(self,request,response):
+        logout(request)
+        response.delete_cookie(SSO_TOKEN)
+        response.delete_cookie(REFRESH_TOKEN)
+        return response
