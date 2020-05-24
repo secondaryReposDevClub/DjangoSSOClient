@@ -2,7 +2,8 @@
 {% block body %}
 <div class="main">
     <button id="createBtn">Create a Note</button>
-    <form action="" id="noteForm" method="POST">
+    <form action="{% url 'create-note' %}" id="noteForm" method="POST">
+        {% csrf_token %}
         <label for="noteHeading">Heading</label>
         <input type="text" name="noteHeading" id="noteHeading" />
         <label for="noteBody">Body</label>
@@ -12,70 +13,14 @@
     <section class="note-container">
         <!--render notes inside this section
         Remove placeholder notes once we have actual data-->
+
+        {% for note in user.notes.all %}
         <div class="note">
-            <div class="note-heading">Lorem, ipsum dolor.</div>
-            <div class="note-body">
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit. In amet corporis perferendis, blanditiis veniam reiciendis fugit doloremque sequi iste, architecto obcaecati expedita incidunt dicta distinctio similique accusamus sed maiores ab vel rem? Ab et quos porro quis consequuntur, labore doloribus.
-            </div>
+            <div class="note-heading">{{note.noteHeading}}</div>
+            <div class="note-body">{{note.noteBody}}</div>
         </div>
-        <div class="note">
-            <div class="note-heading">Lorem ipsum dolor sit amet.</div>
-            <div class="note-body">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores earum dolorum eligendi praesentium officia a in, repellendus soluta itaque ut possimus deserunt dolore enim nihil necessitatibus? Officia quidem debitis nesciunt necessitatibus numquam pariatur, animi ullam voluptas quae. Atque velit possimus minima asperiores. Doloremque, nisi natus.
-            </div>
-        </div>
-        <div class="note">
-            <div class="note-heading">Lorem, ipsum.</div>
-            <div class="note-body">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde ducimus nulla numquam, impedit quisquam eum molestiae sint quod iusto facere iste et quae quis ullam nemo id inventore. Eaque soluta facilis unde, natus vero officiis quae? Rem, saepe c
-            </div>
-        </div>
-        <div class="note">
-            <div class="note-heading">Lorem ipsum dolor sit amet consectetur.</div>
-            <div class="note-body">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores doloribus vero cum impedit sint, aspernatur nisi natus eum debitis deserunt, officia saepe sed doloremque quos ducimus nam quam recusandae autem hic voluptatem maxime, aut quibusdam. Recusandae cupiditate nemo perspiciatis, rem asperiores sunt repudiandae assumenda labore! Atque cum blanditiis saepe dolores maiores, explicabo quis. Eum amet totam culpa veritatis voluptatum praesentium, necessitatibus aut reiciendis ut velit nemo officiis maxime quod ab dolores, ipsa magni vel corporis. Ipsam numquam vel quod modi.
-            </div>
-        </div>
-        <div class="note">
-            <div class="note-heading">Lorem, ipsum.</div>
-            <div class="note-body">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde ducimus nulla numquam, impedit quisquam eum molestiae sint quod iusto facere iste et quae quis ullam nemo id inventore. Eaque soluta facilis unde, natus vero officiis quae? Rem, saepe consequuntur at, dolorem et aliquam suscipit nemo minus assumenda vitae voluptatem laudantium.
-            </div>
-        </div>
-        <div class="note">
-            <div class="note-heading">Lorem ipsum dolor sit.</div>
-            <div class="note-body">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempora amet, blanditiis dolorem animi praesentium ea asperiores ut aperiam veritatis magnam!
-            </div>
-        </div>
-        <div class="note">
-            <div class="note-heading">Lorem, ipsum.</div>
-            <div class="note-body">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quo, explicabo.</div>
-        </div>
-        <div class="note">
-            <div class="note-heading">Lorem, ipsum.</div>
-            <div class="note-body">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde ducimus nulla numquam, impedit quisquam eum molestiae sint quod iusto facere iste et quae quis ullam nemo id inventore. Eaque soluta facilis unde, natus vero officiis quae? Rem, saepe consequuntur at, dolorem et aliquam suscipit nemo minus assumenda vitae voluptatem laudantium.
-            </div>
-        </div>
-        <div class="note">
-            <div class="note-heading">Lorem ipsum dolor sit amet.</div>
-            <div class="note-body">
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus, non amet, nulla hic ullam dignissimos facere deleniti doloribus cupiditate reprehenderit quam perferendis, ut ipsam doloremque error veniam? Eius vel iure tempore? Reiciendis ea laboriosam, temporibus et similique enim omnis vel fugiat iste eligendi adipisci veniam quam, aliquid vero assumenda beatae aspernatur quia ratione numquam cum odit. Labore, harum earum mollitia repellendus aperiam, accusamus dicta possimus dignissimos itaque ad autem eligendi.
-            </div>
-        </div>
-        <div class="note">
-            <div class="note-heading">Lorem, ipsum.</div>
-            <div class="note-body">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde ducimus nulla numquam, impedit quisquam eum molestiae sint quod iusto facere iste et quae quis ullam nemo id inventore. Eaque soluta facilis unde, natus vero officiis quae? Rem, saepe consequuntur at, dolorem et aliquam suscipit nemo minus assumenda vitae voluptatem laudantium.
-            </div>
-        </div>
-        <div class="note">
-            <div class="note-heading">Lorem ipsum dolor sit amet.</div>
-            <div class="note-body">
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus, non amet, nulla hic ullam dignissimos facere deleniti doloribus cupiditate reprehenderit quam perferendis, ut ipsam doloremque error veniam? Eius vel iure tempore? Reiciendis ea laboriosam, temporibus et similique enim omnis vel fugiat iste eligendi adipisci veniam quam, aliquid vero assumenda beatae aspernatur quia ratione numquam cum odit. Labore, harum earum mollitia repellendus aperiam, accusamus dicta possimus dignissimos itaque ad autem eligendi.
-            </div>
-        </div>
+        {% endfor %}
+
     </section>
 </div>
 {% endblock body %}

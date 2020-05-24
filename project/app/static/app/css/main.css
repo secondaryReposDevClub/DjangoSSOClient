@@ -38,6 +38,18 @@ body {
     color: white;
 }
 
+.nav-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-section p {
+    color: white;
+    font-size: 1rem;
+    margin-right: 1.5rem;
+}
+
 .nav-link {
     margin: 0 1rem;
     text-decoration: none;
