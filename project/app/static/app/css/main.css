@@ -1,0 +1,88 @@
+:root {
+    --heading-font: 'Fira Sans', sans-serif;
+    --body-font: 'Open Sans', sans-serif;
+    --body-text-color: #30343f;
+    font-size: 16px;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #ffeaec;
+    font-family: var(--body-font);
+}
+
+.navbar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    width: 100%;
+    font-family: var(--heading-font);
+    display: flex;
+    background-color: #52489c;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 2rem;
+}
+
+.nav-brand {
+    font-size: 2rem;
+    font-weight: 500;
+    text-decoration: none;
+    margin-right: 1rem;
+    color: white;
+}
+
+.nav-link {
+    margin: 0 1rem;
+    text-decoration: none;
+    color: white;
+    font-size: 1.5rem;
+    position: relative;
+}
+
+.nav-link::after {
+    position: absolute;
+    content: '';
+    height: 3px;
+    width: 100%;
+    background: white;
+    bottom: -5px;
+    left: 0;
+    transform: scaleX(0);
+    transition: all 200ms ease-in;
+}
+
+.nav-link:hover::after {
+    transform: scaleX(1);
+}
+
+.body-block {
+    margin-top: 4rem;
+}
+
+.main-content {
+    padding-top: 6rem;
+    display: flex;
+    justify-content: center;
+}
+
+.welcome-message {
+    border: 3px solid var(--body-text-color);
+    border-radius: 15px;
+    background-color: var(--body-text-color);
+    color: white;
+    text-align: center;
+    padding: 2rem;
+}
+
+@media (max-width:550px) {
+    :root {
+        font-size: 13px;
+    }
+}
