@@ -46,14 +46,16 @@ class SSOMiddleware:
                     decoded['user'] = self.refresh(request=request,token={SSO_TOKEN:token})
 
                 self.assign_user(request, decoded['user'])
-            except:
+            except Exception as err:
+                print(err)
                 return redirect(AUTH_URL+f"/?{QUERY_PARAM}={request.build_absolute_uri()}")
         else:
             try:
                 decoded = jwt.decode(rememberme,self.public_key,algorithms='RS256')
                 user = self.refresh(request,{REFRESH_TOKEN:rememberme})
                 self.assign_user(request,user_payload=user)
-            except:
+            except Exception as err:
+                print(err)
                 return redirect(AUTH_URL+f"/?{QUERY_PARAM}={request.build_absolute_uri()}")
 
         response = self.get_response(request)
