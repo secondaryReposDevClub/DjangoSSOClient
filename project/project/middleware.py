@@ -27,6 +27,7 @@ class SSOMiddleware:
         self.cookies = None
 
     def __call__(self, request):
+        print(self.cookies)
         if(request.path == LOGOUT_PATH):
             return self.logout(request,self.get_response(request))
 
@@ -54,7 +55,6 @@ class SSOMiddleware:
                 self.assign_user(request, decoded['user'])
             except Exception as err:
                 print(err)
-                self.cookies = CLEAR_COOKIE
                 return redirect(AUTH_URL+f"/?{QUERY_PARAM}={request.build_absolute_uri()}")
         else:
             try:
@@ -63,7 +63,6 @@ class SSOMiddleware:
                 self.assign_user(request,user_payload=user)
             except Exception as err:
                 print(err)
-                self.cookies = CLEAR_COOKIE
                 return redirect(AUTH_URL+f"/?{QUERY_PARAM}={request.build_absolute_uri()}")
 
         response = self.get_response(request)

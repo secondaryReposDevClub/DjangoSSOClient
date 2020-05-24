@@ -18,8 +18,6 @@ python3 manage.py runserver
 Also run the auth server at localhost:3000
 
 Now open your browser and go to `localhost:8000/`
-There is another endpoint you may wish to visit `localhost:8000/p1`
-
-TO logout visit `localhost:8000/logout` 
+Everything should be up and running by now. Create some good old notes and have fun!
 
 For testing keep a look at the cookies that are being set in the browser.
