@@ -18,8 +18,6 @@ QUERY_PARAM = 'serviceURL'
 LOGOUT_PATH = '/logout/'
 USER_MODEL = User
 
-CLEAR_COOKIE = "clear"
-
 class SSOMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -27,9 +25,8 @@ class SSOMiddleware:
         self.cookies = None
 
     def __call__(self, request):
-        print(self.cookies)
         if(request.path == LOGOUT_PATH):
-            return self.logout(request,self.get_response(request))
+            return self.logout(request)
 
         try:
             token = request.COOKIES[SSO_TOKEN]
@@ -67,9 +64,6 @@ class SSOMiddleware:
 
         response = self.get_response(request)
 
-        if(self.cookies == CLEAR_COOKIE):
-            return self.logout(request,response)
-        
         if(self.cookies is not None):
             response._headers['set-cookie'] = ('Set-Cookie',self.cookies)
 
@@ -91,8 +85,9 @@ class SSOMiddleware:
         self.cookies = r.headers['Set-Cookie'].replace('Lax,','Lax,\nSet-Cookie:')
         return json.loads(r.text)['user']
 
-    def logout(self,request,response):
+    def logout(self,request):
         logout(request)
+        response = self.get_response(request)
         response.delete_cookie(SSO_TOKEN)
         response.delete_cookie(REFRESH_TOKEN)
         return response
