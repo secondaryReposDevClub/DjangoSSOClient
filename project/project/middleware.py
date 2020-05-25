@@ -18,6 +18,8 @@ QUERY_PARAM = 'serviceURL'
 LOGOUT_PATH = '/logout/'
 USER_MODEL = User
 
+PUBLIC_PATHS = ['/', '/public/'] # An array of paths that will not be processed by the middleware 
+
 class SSOMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -25,7 +27,10 @@ class SSOMiddleware:
         self.cookies = None
 
     def __call__(self, request):
-        if(request.path == LOGOUT_PATH):
+        if (request.path in PUBLIC_PATHS):
+            return self.get_response(request)
+
+        if (request.path == LOGOUT_PATH):
             return self.logout(request)
 
         try:

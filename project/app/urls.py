@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^logout/$',logout,name='logout'),
     path('notes/', notes, name='notes'),
     path('createNote/', createNote, name='create-note'),
+    path('public/', public, name='public'),
 ]

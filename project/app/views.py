@@ -24,3 +24,6 @@ def p1(request):
 
 def logout(request):
     return render(request, 'app/logout.html')
+
+def public(request):
+    return HttpResponse('This is visible to everyone')
