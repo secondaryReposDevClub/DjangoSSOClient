@@ -1,4 +1,5 @@
 from django.shortcuts import redirect
+from django.urls import reverse_lazy
 import jwt
 import requests
 import json
@@ -18,7 +19,7 @@ QUERY_PARAM = 'serviceURL'
 LOGOUT_PATH = '/logout/'
 USER_MODEL = User
 
-PUBLIC_PATHS = ['/', '/public/'] # An array of paths that will not be processed by the middleware 
+PUBLIC_PATHS = list(map(reverse_lazy, ['public', 'index'])) # An array of paths that will not be processed by the middleware 
 
 class SSOMiddleware:
     def __init__(self, get_response):
