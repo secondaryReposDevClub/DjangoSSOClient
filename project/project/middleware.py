@@ -19,7 +19,7 @@ QUERY_PARAM = 'serviceURL'
 LOGOUT_PATH = '/logout/'
 USER_MODEL = User
 
-PUBLIC_PATHS = list(map(reverse_lazy, ['public', 'index'])) # An array of paths that will not be processed by the middleware 
+PUBLIC_PATHS = ['/public/','/'] # An array of paths that will not be processed by the middleware 
 
 class SSOMiddleware:
     def __init__(self, get_response):
@@ -28,8 +28,6 @@ class SSOMiddleware:
         self.cookies = None
 
     def __call__(self, request):
-        if (request.path in PUBLIC_PATHS):
-            return self.get_response(request)
 
         if (request.path == LOGOUT_PATH):
             return self.logout(request)
@@ -46,7 +44,7 @@ class SSOMiddleware:
             
 
         if(not token and not rememberme):
-            return redirect(AUTH_URL+f"/?{QUERY_PARAM}={request.build_absolute_uri()}")
+            return self.redirect(request)
         
         if(token is not None):
             try:
@@ -58,7 +56,7 @@ class SSOMiddleware:
                 self.assign_user(request, decoded['user'])
             except Exception as err:
                 print(err)
-                return redirect(AUTH_URL+f"/?{QUERY_PARAM}={request.build_absolute_uri()}")
+                return self.redirect(request)
         else:
             try:
                 decoded = jwt.decode(rememberme,self.public_key,algorithms='RS256')
@@ -66,7 +64,7 @@ class SSOMiddleware:
                 self.assign_user(request,user_payload=user)
             except Exception as err:
                 print(err)
-                return redirect(AUTH_URL+f"/?{QUERY_PARAM}={request.build_absolute_uri()}")
+                return self.redirect(request)
 
         response = self.get_response(request)
 
@@ -97,3 +95,8 @@ class SSOMiddleware:
         response.delete_cookie(SSO_TOKEN)
         response.delete_cookie(REFRESH_TOKEN)
         return response
+    
+    def redirect(self,request):
+        if(request.path in PUBLIC_PATHS):
+            return self.get_response(request)
+        return redirect(AUTH_URL+f"/?{QUERY_PARAM}={request.build_absolute_uri()}")
