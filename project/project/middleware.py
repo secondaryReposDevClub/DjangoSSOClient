@@ -8,11 +8,12 @@ import time
 
 from django.contrib.auth.models import User
 from django.contrib.auth import login,logout
+from django.http.response import HttpResponse
 
 SSO_TOKEN = 'token'
 REFRESH_TOKEN = 'rememberme'
-AUTH_URL = 'http://localhost:3000/user/login'
-REFRESH_URL = 'http://localhost:3000/auth/refresh-token'
+AUTH_URL = 'http://localhost:8000/user/login'
+REFRESH_URL = 'http://localhost:8000/auth/refresh-token'
 PUBLIC_KEY = 'project/public.pem'
 MAX_TTL_ALLOWED = 60 * 5
 QUERY_PARAM = 'serviceURL'
@@ -20,6 +21,8 @@ LOGOUT_PATH = '/logout/'
 USER_MODEL = User
 
 PUBLIC_PATHS = ['/public/','/'] # An array of paths that will not be processed by the middleware 
+ROLES = ['external_user']
+UNAUTHORIZRED_HANDLER = lambda request: HttpResponse("Alas You are out of scope! Go get some more permissions dude",status=401)
 
 class SSOMiddleware:
     def __init__(self, get_response):
@@ -49,11 +52,15 @@ class SSOMiddleware:
         if(token is not None):
             try:
                 decoded = jwt.decode(token,self.public_key,algorithms='RS256')
+                print(decoded)
                 
                 if(float(decoded['exp']) - time.time() < MAX_TTL_ALLOWED):
                     decoded['user'] = self.refresh(request=request,token={SSO_TOKEN:token})
 
+                if(not self.authorize_roles(request,decoded['user'])):
+                    return UNAUTHORIZRED_HANDLER(request)
                 self.assign_user(request, decoded['user'])
+
             except Exception as err:
                 print(err)
                 return self.redirect(request)
@@ -61,7 +68,11 @@ class SSOMiddleware:
             try:
                 decoded = jwt.decode(rememberme,self.public_key,algorithms='RS256')
                 user = self.refresh(request,{REFRESH_TOKEN:rememberme})
+
+                if(not self.authorize_roles(request, decoded['user'])):
+                    return UNAUTHORIZRED_HANDLER(request)
                 self.assign_user(request,user_payload=user)
+
             except Exception as err:
                 print(err)
                 return self.redirect(request)
@@ -80,8 +91,29 @@ class SSOMiddleware:
         try:
             user = USER_MODEL.objects.get(email=user_payload['email'])
         except:
-            user = USER_MODEL.objects.create_user(username=user_payload['username'], email=user_payload['email'],first_name=user_payload['firstname'],last_name=user_payload['lastname'])
+            user = USER_MODEL.objects.create_user(email=user_payload['email'],username=user_payload['username'])
+        
+        user.first_name = user_payload['firstname']
+        user.last_name = user_payload['lastname']
+        user.username = user_payload['username']
+        user.save()
+
         login(request, user)
+    
+    def authorize_roles(self,request,user_payload):
+        if(len(ROLES) == 0):
+            return True
+        try:
+            user_roles = user_payload['role']
+        except:
+            return False
+        
+
+        for role in ROLES:
+            if(role not in user_roles):
+                return False
+        
+        return True
         
     
     def refresh(self,request,token):
