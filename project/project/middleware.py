@@ -5,7 +5,7 @@ import requests
 import json
 import time
 
-
+#import settings
 from django.contrib.auth.models import User
 from django.contrib.auth import login,logout
 from django.http.response import HttpResponse
@@ -35,6 +35,9 @@ class SSOMiddleware:
         if (request.path == LOGOUT_PATH):
             return self.logout(request)
 
+        if(request.path in PUBLIC_PATHS):
+            return self.get_response(request)
+
         try:
             token = request.COOKIES[SSO_TOKEN]
         except :
@@ -52,12 +55,11 @@ class SSOMiddleware:
         if(token is not None):
             try:
                 decoded = jwt.decode(token,self.public_key,algorithms='RS256')
-                print(decoded)
                 
                 if(float(decoded['exp']) - time.time() < MAX_TTL_ALLOWED):
                     decoded['user'] = self.refresh(request=request,token={SSO_TOKEN:token})
 
-                if(not self.authorize_roles(request,decoded['user'])):
+                if(not self.authorize_roles(request, decoded['user'])):
                     return UNAUTHORIZRED_HANDLER(request)
                 self.assign_user(request, decoded['user'])
 
@@ -129,6 +131,4 @@ class SSOMiddleware:
         return response
     
     def redirect(self,request):
-        if(request.path in PUBLIC_PATHS):
-            return self.get_response(request)
         return redirect(AUTH_URL+f"/?{QUERY_PARAM}={request.build_absolute_uri()}")
