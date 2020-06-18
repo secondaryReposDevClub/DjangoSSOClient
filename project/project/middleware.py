@@ -5,10 +5,10 @@ import requests
 import json
 import time
 
-#import settings
 from django.contrib.auth.models import User
 from django.contrib.auth import login,logout
 from django.http.response import HttpResponse
+from django.conf import settings
 
 SSO_TOKEN = 'token'
 REFRESH_TOKEN = 'rememberme'
@@ -20,16 +20,23 @@ QUERY_PARAM = 'serviceURL'
 LOGOUT_PATH = '/logout/'
 USER_MODEL = User
 
-PUBLIC_PATHS = ['/public/','/'] # An array of paths that will not be processed by the middleware 
-ROLES = ['external_user']
+# An array of paths that will not be processed by the middleware
+PUBLIC_PATHS = ['/public/','/'] 
+
+# A dictionary for roles for given paths, '*' denotes all other paths except the PUBLIC_PATHS
+ROLES = {
+    '*' : ['external_user'],
+    '/admin/': ['dc_core','admin']
+}
 UNAUTHORIZRED_HANDLER = lambda request: HttpResponse("Alas You are out of scope! Go get some more permissions dude",status=401)
 
 class SSOMiddleware:
     def __init__(self, get_response):
+        self.configure()
         self.get_response = get_response
         self.public_key = open(PUBLIC_KEY,'rb').read()
         self.cookies = None
-
+        
     def __call__(self, request):
 
         if (request.path == LOGOUT_PATH):
@@ -86,6 +93,14 @@ class SSOMiddleware:
 
         return response
 
+    def configure(self):
+        for key, value in globals().items():
+            if(key.isupper()):
+                new_val = getattr(settings, key, value)
+                if(type(new_val) != type(value)):
+                    err = f"Type Mismatch, {key} should be of {type(value)} but found as {type(new_val)}"
+                    raise TypeError(err)
+                globals()[key] = new_val
 
     def assign_user(self,request,user_payload):
         if(request.user.is_authenticated):
@@ -103,15 +118,19 @@ class SSOMiddleware:
         login(request, user)
     
     def authorize_roles(self,request,user_payload):
-        if(len(ROLES) == 0):
+        if(len(ROLES.keys()) == 0):
             return True
         try:
             user_roles = user_payload['role']
         except:
             return False
+            
+        if(request.path in ROLES.keys()):
+            reqd_roles = ROLES[request.path]
+        else:
+            reqd_roles = ROLES['*']
         
-
-        for role in ROLES:
+        for role in reqd_roles:
             if(role not in user_roles):
                 return False
         
