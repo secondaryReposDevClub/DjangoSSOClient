@@ -18,6 +18,7 @@ PUBLIC_KEY = 'project/public.pem'
 MAX_TTL_ALLOWED = 60 * 5
 QUERY_PARAM = 'serviceURL'
 LOGOUT_PATH = '/logout/'
+
 USER_MODEL = User
 
 # An array of paths that will not be processed by the middleware
@@ -41,9 +42,6 @@ class SSOMiddleware:
 
         if (request.path == LOGOUT_PATH):
             return self.logout(request)
-
-        if(request.path in PUBLIC_PATHS):
-            return self.get_response(request)
 
         try:
             token = request.COOKIES[SSO_TOKEN]
@@ -121,7 +119,7 @@ class SSOMiddleware:
         if(len(ROLES.keys()) == 0):
             return True
         try:
-            user_roles = user_payload['role']
+            user_roles = user_payload['roles']
         except:
             return False
             
@@ -150,4 +148,6 @@ class SSOMiddleware:
         return response
     
     def redirect(self,request):
+        if(request.path in PUBLIC_PATHS):
+            return self.get_response(request)
         return redirect(AUTH_URL+f"/?{QUERY_PARAM}={request.build_absolute_uri()}")
