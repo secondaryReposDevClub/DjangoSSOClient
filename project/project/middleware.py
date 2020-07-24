@@ -18,17 +18,21 @@ PUBLIC_KEY = 'project/public.pem'
 MAX_TTL_ALLOWED = 60 * 5
 QUERY_PARAM = 'serviceURL'
 LOGOUT_PATH = '/logout/'
+
 USER_MODEL = User
 
 # An array of paths that will not be processed by the middleware
 PUBLIC_PATHS = ['/public/','/'] 
 
-# A dictionary for roles for given paths, '*' denotes all other paths except the PUBLIC_PATHS
+# A dictionary of roles for request paths, '*' denotes all other paths except the PUBLIC_PATHS
+# If a path is specified as key in the dictionary then its corresponding roles will be checked
+# If the key corresponding to request.path is not found then the roles specified in '*' are checked.
+# The user should have all the roles specified in the list to be given access.
 ROLES = {
     '*' : ['external_user'],
     '/admin/': ['dc_core','admin']
 }
-UNAUTHORIZRED_HANDLER = lambda request: HttpResponse("Alas You are out of scope! Go get some more permissions dude",status=401)
+UNAUTHORIZED_HANDLER = lambda request: HttpResponse("Alas You are out of scope! Go get some more permissions dude",status=401)
 
 class SSOMiddleware:
     def __init__(self, get_response):
@@ -41,9 +45,6 @@ class SSOMiddleware:
 
         if (request.path == LOGOUT_PATH):
             return self.logout(request)
-
-        if(request.path in PUBLIC_PATHS):
-            return self.get_response(request)
 
         try:
             token = request.COOKIES[SSO_TOKEN]
@@ -67,7 +68,7 @@ class SSOMiddleware:
                     decoded['user'] = self.refresh(request=request,token={SSO_TOKEN:token})
 
                 if(not self.authorize_roles(request, decoded['user'])):
-                    return UNAUTHORIZRED_HANDLER(request)
+                    return UNAUTHORIZED_HANDLER(request)
                 self.assign_user(request, decoded['user'])
 
             except Exception as err:
@@ -79,7 +80,7 @@ class SSOMiddleware:
                 user = self.refresh(request,{REFRESH_TOKEN:rememberme})
 
                 if(not self.authorize_roles(request, decoded['user'])):
-                    return UNAUTHORIZRED_HANDLER(request)
+                    return UNAUTHORIZED_HANDLER(request)
                 self.assign_user(request,user_payload=user)
 
             except Exception as err:
@@ -89,7 +90,8 @@ class SSOMiddleware:
         response = self.get_response(request)
 
         if(self.cookies is not None):
-            response._headers['set-cookie'] = ('Set-Cookie',self.cookies)
+            response._headers['set-cookie1'] = ('Set-Cookie',self.cookies.split('\n')[0])
+            response._headers['set-cookie2'] = ('Set-Cookie',self.cookies.split('\n')[1])
 
         return response
 
@@ -121,7 +123,7 @@ class SSOMiddleware:
         if(len(ROLES.keys()) == 0):
             return True
         try:
-            user_roles = user_payload['role']
+            user_roles = user_payload['roles']
         except:
             return False
             
@@ -139,7 +141,7 @@ class SSOMiddleware:
     
     def refresh(self,request,token):
         r=requests.post(REFRESH_URL,data=token)
-        self.cookies = r.headers['Set-Cookie'].replace('Lax,','Lax,\nSet-Cookie:')
+        self.cookies = r.headers['Set-Cookie'].replace('Lax,','Lax\n')
         return json.loads(r.text)['user']
 
     def logout(self,request):
@@ -150,4 +152,6 @@ class SSOMiddleware:
         return response
     
     def redirect(self,request):
+        if(request.path in PUBLIC_PATHS):
+            return self.get_response(request)
         return redirect(AUTH_URL+f"/?{QUERY_PARAM}={request.build_absolute_uri()}")
