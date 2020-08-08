@@ -120,7 +120,7 @@ class SSOMiddleware:
         login(request, user)
     
     def authorize_roles(self,request,user_payload):
-        if(len(ROLES.keys()) == 0):
+        if(len(ROLES.keys()) == 0 or request.path in PUBLIC_PATHS):
             return True
         try:
             user_roles = user_payload['roles']
