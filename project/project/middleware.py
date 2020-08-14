@@ -91,6 +91,7 @@ class SSOMiddleware:
         if(self.cookies is not None):
             response._headers['set-cookie1'] = ('Set-Cookie',self.cookies.split('\n')[0])
             response._headers['set-cookie2'] = ('Set-Cookie',self.cookies.split('\n')[1])
+            self.cookies = None
 
         return response
 
