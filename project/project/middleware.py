@@ -13,8 +13,8 @@ from django.conf import settings
 
 SSO_TOKEN = 'token'
 REFRESH_TOKEN = 'rememberme'
-AUTH_URL = 'http://localhost:8000/user/login'
-REFRESH_URL = 'http://localhost:8000/auth/refresh-token'
+AUTH_URL = 'https://auth.devclub.in/user/login'
+REFRESH_URL = 'https://auth.devclub.in/auth/refresh-token'
 PUBLIC_KEY = 'project/public.pem'
 MAX_TTL_ALLOWED = 60 * 5
 QUERY_PARAM = 'serviceURL'
